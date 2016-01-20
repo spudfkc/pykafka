@@ -290,6 +290,10 @@ class Broker(object):
 
             previous_topic = None
             for name, topic_metadata in iteritems(response.topics):
+                log.debug("Checking topic with name: %s", name)
+                log.debug("Previous topic: %s", previous_topic)
+                log.debug("match?  %s", name == previous_topic)
+                log.debug("---")
                 if name == previous_topic:
                     raise LeaderNotAvailable("Stuck in infinite loop. len(topics): %s -topics: %s", len(response.topics), response.topics)
                 if topic_metadata.err == LeaderNotAvailable.ERROR_CODE:
