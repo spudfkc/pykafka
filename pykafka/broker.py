@@ -288,13 +288,17 @@ class Broker(object):
                             self.host, self.port)
                 continue
 
+            previous_topic = None
             for name, topic_metadata in iteritems(response.topics):
+                if name == previous_topic:
+                    raise LeaderNotAvailable("Stuck in infinite loop. len(topics): %s -topics: %s", len(response.topics), response.topics)
                 if topic_metadata.err == LeaderNotAvailable.ERROR_CODE:
                     log.warning("Leader not available for topic '%s'.", name)
                 for pid, partition_metadata in iteritems(topic_metadata.partitions):
                     if partition_metadata.err == LeaderNotAvailable.ERROR_CODE:
                         log.warning("Leader not available for topic '%s' partition %d.",
                                     name, pid)
+                previous_topic = name
             return response
 
     ######################

@@ -154,6 +154,7 @@ class RequestHandler(object):
                 try:
                     # set a timeout so we check `ending` every so often
                     task = shared.requests.get(timeout=1)
+                    log.debug("Timed out while waiting for future request")
                 except Empty:
                     continue
                 try:

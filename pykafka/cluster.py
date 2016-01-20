@@ -355,6 +355,7 @@ class Cluster(object):
                  consumer_group)
         # arbitrarily choose a broker, since this request can go to any
         broker = self.brokers[random.choice(list(self.brokers.keys()))]
+        log.debug("Using broker: %s", broker)
         MAX_RETRIES = 5
 
         for i in range(MAX_RETRIES):
