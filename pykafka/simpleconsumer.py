@@ -408,7 +408,7 @@ class SimpleConsumer(object):
                 self.commit_offsets()
             self._last_auto_commit = time.time()
 
-    def commit_offsets(self):
+    def commit_offsets(self, offset=None):
         """Commit offsets for this consumer's partitions
 
         Uses the offset commit/fetch API
@@ -416,7 +416,7 @@ class SimpleConsumer(object):
         if not self._consumer_group:
             raise Exception("consumer group must be specified to commit offsets")
 
-        reqs = [p.build_offset_commit_request() for p in self._partitions.values()]
+        reqs = [p.build_offset_commit_request(offset=offset) for p in self._partitions.values()]
         log.debug("Committing offsets for %d partitions to broker id %s", len(reqs),
                   self._offset_manager.id)
         for i in range(self._offsets_commit_max_retries):
@@ -792,14 +792,17 @@ class OwnedPartition(object):
             self.partition.topic.name, self.partition.id,
             self.next_offset, max_bytes)
 
-    def build_offset_commit_request(self):
+    def build_offset_commit_request(self, offset=None):
         """Create a :class:`pykafka.protocol.PartitionOffsetCommitRequest`
             for this partition
         """
+        if offset is None:
+            offset = self.last_offset_consumed + 1
+
         return PartitionOffsetCommitRequest(
             self.partition.topic.name,
             self.partition.id,
-            self.last_offset_consumed + 1,
+            offset,
             int(time.time() * 1000),
             b'pykafka'
         )
